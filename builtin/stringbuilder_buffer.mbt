@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-struct StringBuilder {
+pub struct StringBuilder {
   mut data : FixedArray[Byte]
   mut len : Int
 }

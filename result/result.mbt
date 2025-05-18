@@ -13,6 +13,12 @@
 // limitations under the License.
 
 ///|
+pub enum Result[T, E] {
+  Ok(T),
+  Err(E),
+}
+
+///|
 /// Maps the value of a Result if it is `Ok` into another, otherwise returns the `Err` value unchanged.
 ///
 /// # Example

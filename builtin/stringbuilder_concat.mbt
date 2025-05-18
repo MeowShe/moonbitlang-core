@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-type StringBuilder Ref[String]
+pub type StringBuilder Ref[String]
 
 ///|
 /// Creates a new string builder with an optional initial capacity hint.
