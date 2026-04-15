@@ -19,18 +19,37 @@ priv struct StateId(Int64)
 let pending_state_id : StateId = -1
 
 ///|
+const MAX_STATE_INDEX : Int = 0b1111_1111_1111_1111_1110
+
+///|
+const MAX_SLOT_INDEX : Int = 0b111_1111_1111
+
+///|
+const MAX_NUM_SYMBOLS : Int = 0b111_1111_1110
+
+///|
+const MAX_TRANSITION_BASE : Int64 = 0x7fff_ffffL
+
+///|
 fn StateId::new(
   index~ : Int,
   slot~ : @automata.Slot,
   is_break~ : Bool,
   num_symbols~ : Int,
 ) -> StateId {
+  guard index >= 0 && index <= MAX_STATE_INDEX else { panic() }
+  guard slot.index >= 0 && slot.index <= MAX_SLOT_INDEX else { panic() }
+  guard num_symbols > 0 && num_symbols <= MAX_NUM_SYMBOLS else { panic() }
+  let transition_base64 = index.to_int64() * num_symbols.to_int64()
+  guard transition_base64 >= 0L && transition_base64 <= MAX_TRANSITION_BASE else {
+    panic()
+  }
+  let transition_base = transition_base64.to_int()
   debug_assert(() => {
-    index <= 0b1111_1111_1111_1111_1110 &&
-    slot.index <= 0b111_1111_1111 &&
-    num_symbols <= 0b111_1111_1110
+    index <= MAX_STATE_INDEX &&
+    slot.index <= MAX_SLOT_INDEX &&
+    num_symbols <= MAX_NUM_SYMBOLS
   })
-  let transition_base = index * num_symbols
   let encoded_index = if is_break { -2 - index } else { index }
   let id = StateId(
     (((encoded_index << 11) | slot.index).to_int64() << 32) |

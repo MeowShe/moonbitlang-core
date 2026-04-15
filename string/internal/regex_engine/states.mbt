@@ -39,13 +39,24 @@ fn Regex::stablize_state(self : Regex, state : @automata.State) -> StateId {
     self.num_states += 1
     let num_symbols = self.num_symbols()
     if index >= self.states.length() {
-      let new_states_len = Int::max(self.states.length() * 2, 4)
+      let new_states_len = if self.states.length() < 2 {
+        4
+      } else {
+        let doubled = self.states.length().to_int64() * 2L
+        guard doubled <= 0x7fff_ffffL else { panic() }
+        doubled.to_int()
+      }
+      let new_transition_len64 = new_states_len.to_int64() * num_symbols.to_int64()
+      guard new_transition_len64 >= 0L && new_transition_len64 <= 0x7fff_ffffL else {
+        panic()
+      }
+      let new_transition_len = new_transition_len64.to_int()
 
       let new_states = FixedArray::make(new_states_len, @automata.st_dummy)
       self.states.blit_to(new_states, len=self.states.length())
 
       let new_transition_table = FixedArray::make(
-        new_states_len * num_symbols,
+        new_transition_len,
         pending_state_id,
       )
       self.transition_table.blit_to(
